@@ -1,4 +1,4 @@
-Attribute VB_Name = "molduraBeta1"
+Attribute VB_Name = "molduraAutoV211"
 Option Explicit
 
 Sub molduraAzul()
@@ -7,6 +7,10 @@ End Sub
 
 Sub molduraCinza()
     AplicarMoldura "E:\Desenvolvimento - Projeto\AutoHub\AutoDraw\assets\symbols\MOLDURA AUTO\molduraCinza.cdr"
+End Sub
+
+Sub molduraPreto()
+    AplicarMoldura "E:\Desenvolvimento - Projeto\AutoHub\AutoDraw\assets\symbols\MOLDURA AUTO\molduraPreto.cdr"
 End Sub
 
 Private Sub AplicarMoldura(ByVal caminho As String)
@@ -91,7 +95,7 @@ Private Sub AplicarMoldura(ByVal caminho As String)
     End If
 
     ' ===== ARQUIVO =====
-    If dir(caminho) = "" Then
+    If Dir(caminho) = "" Then
         MsgBox "Arquivo não encontrado: " & vbCrLf & caminho, vbCritical
         Exit Sub
     End If
