@@ -42,7 +42,7 @@ Private Sub AplicarMoldura(ByVal caminho As String)
     Set candidatos = New Collection
     maiorArea = 0
 
-    ' ===== BUSCA AUTOMÁTICA DO RETÂNGULO =====
+    ' ===== BUSCA AUTOM?TICA DO RET?NGULO =====
     For Each s In ActivePage.Shapes
 
         If s.Type = cdrRectangleShape Then
@@ -64,29 +64,29 @@ Private Sub AplicarMoldura(ByVal caminho As String)
     Next s
 
     If candidatos.Count = 0 Then
-        MsgBox "Nenhum retângulo com borda magenta encontrado.", vbExclamation
+        MsgBox "Nenhum ret?ngulo com borda magenta encontrado.", vbExclamation
         Exit Sub
     End If
 
-    ' ===== LÓGICA HÍBRIDA =====
+    ' ===== L?GICA H?BRIDA =====
     If candidatos.Count > 1 Then
 
         If ActiveSelectionRange.Count > 0 Then
             Set candidatoSelecionado = ActiveSelectionRange(1)
 
             If candidatoSelecionado.Type <> cdrRectangleShape Then
-                MsgBox "O objeto selecionado não é um retângulo.", vbExclamation
+                MsgBox "O objeto selecionado n?o ? um ret?ngulo.", vbExclamation
                 Exit Sub
             End If
 
             If Not ShapeTemContornoMagenta(candidatoSelecionado) Then
-                MsgBox "O objeto selecionado não possui borda magenta CMYK válida.", vbExclamation
+                MsgBox "O objeto selecionado n?o possui borda magenta CMYK v?lida.", vbExclamation
                 Exit Sub
             End If
 
             Set s = candidatoSelecionado
         Else
-            MsgBox "Mais de um retângulo magenta encontrado. Selecione manualmente o retângulo desejado.", vbCritical
+            MsgBox "Mais de um ret?ngulo magenta encontrado. Selecione manualmente o ret?ngulo desejado.", vbCritical
             Exit Sub
         End If
 
@@ -96,30 +96,30 @@ Private Sub AplicarMoldura(ByVal caminho As String)
 
     ' ===== ARQUIVO =====
     If Dir(caminho) = "" Then
-        MsgBox "Arquivo não encontrado: " & vbCrLf & caminho, vbCritical
+        MsgBox "Arquivo n?o encontrado: " & vbCrLf & caminho, vbCritical
         Exit Sub
     End If
 
     ActiveLayer.Import caminho
 
     If ActiveSelectionRange.Count = 0 Then
-        MsgBox "O arquivo foi importado, mas nenhum objeto ficou selecionado após a importação.", vbCritical
+        MsgBox "O arquivo foi importado, mas nenhum objeto ficou selecionado ap?s a importa??o.", vbCritical
         Exit Sub
     End If
 
     Set grupo = ActiveSelectionRange(1)
 
     If grupo Is Nothing Then
-        MsgBox "Não foi possível obter o grupo importado.", vbCritical
+        MsgBox "N?o foi poss?vel obter o grupo importado.", vbCritical
         Exit Sub
     End If
 
     If grupo.Shapes.Count = 0 Then
-        MsgBox "O objeto importado não contém shapes internos.", vbCritical
+        MsgBox "O objeto importado n?o cont?m shapes internos.", vbCritical
         Exit Sub
     End If
 
-    ' ===== LOCALIZA PEÇAS =====
+    ' ===== LOCALIZA PE?AS =====
     For Each sh In grupo.Shapes
         Select Case sh.Name
             Case "cantSupDir": Set cantSupDir = sh
@@ -134,12 +134,12 @@ Private Sub AplicarMoldura(ByVal caminho As String)
     Next sh
 
     If cantSupDir Is Nothing Or cantSupEsq Is Nothing Or cantInfEsq Is Nothing Or cantInfDir Is Nothing Then
-        MsgBox "Alguma cantoneira não foi encontrada no arquivo importado.", vbCritical
+        MsgBox "Alguma cantoneira n?o foi encontrada no arquivo importado.", vbCritical
         Exit Sub
     End If
 
     If tuboDir Is Nothing Or tuboSup Is Nothing Or tuboEsq Is Nothing Or tuboInf Is Nothing Then
-        MsgBox "Algum tubo não foi encontrado no arquivo importado.", vbCritical
+        MsgBox "Algum tubo n?o foi encontrado no arquivo importado.", vbCritical
         Exit Sub
     End If
 
@@ -269,8 +269,9 @@ Private Function CorEhMagentaCMYK(ByVal cor As Color) As Boolean
     Exit Function
 
 Falha:
-    ' Se a cor não for CMYK compatível, simplesmente retorna False
+    ' Se a cor n?o for CMYK compat?vel, simplesmente retorna False
     CorEhMagentaCMYK = False
     Err.Clear
 End Function
+
 
