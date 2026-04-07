@@ -1,4 +1,4 @@
-Attribute VB_Name = "molduraAutoV211"
+Attribute VB_Name = "molduraAutoV23"
 Option Explicit
 
 ' ==============================================================================
