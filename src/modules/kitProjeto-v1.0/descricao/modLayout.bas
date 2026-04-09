@@ -1,0 +1,161 @@
+Attribute VB_Name = "modLayout"
+' modLayout
+Option Explicit
+
+Private Const TOLERANCIA_COR_CMYK As Double = 0.5
+
+Public Function ObterRetanguloMagenta(ByRef retanguloBase As Shape) As Boolean
+    Dim shapePagina As Shape
+    Dim retanguloSelecionado As Shape
+    Dim candidatos As Collection
+    Dim maiorShape As Shape
+    Dim maiorArea As Double
+    Dim areaAtual As Double
+
+    Set candidatos = New Collection
+    maiorArea = 0
+
+    For Each shapePagina In ActivePage.Shapes
+        If shapePagina.Type = cdrRectangleShape Then
+            If ShapeTemContornoMagenta(shapePagina) Then
+                areaAtual = shapePagina.SizeWidth * shapePagina.SizeHeight
+                If areaAtual > 1 Then
+                    candidatos.Add shapePagina
+                    If areaAtual > maiorArea Then
+                        maiorArea = areaAtual
+                        Set maiorShape = shapePagina
+                    End If
+                End If
+            End If
+        End If
+    Next shapePagina
+
+    If candidatos.Count = 0 Then
+        MsgBox "Nenhum retângulo magenta válido encontrado." & vbCrLf & _
+               "Selecione manualmente o retângulo desejado e rode novamente.", vbExclamation
+        ObterRetanguloMagenta = False
+        Exit Function
+    End If
+
+    If candidatos.Count > 1 Then
+        If ActiveSelectionRange.Count > 0 Then
+            Set retanguloSelecionado = ActiveSelectionRange(1)
+            If retanguloSelecionado.Type <> cdrRectangleShape Or _
+               Not ShapeTemContornoMagenta(retanguloSelecionado) Then
+                MsgBox "O retângulo selecionado não possui borda magenta válida." & vbCrLf & _
+                       "Selecione manualmente um retângulo magenta válido e rode novamente.", vbExclamation
+                ObterRetanguloMagenta = False
+                Exit Function
+            End If
+            Set retanguloBase = retanguloSelecionado
+        Else
+            MsgBox "Mais de um retângulo magenta encontrado." & vbCrLf & _
+                   "Selecione manualmente o retângulo desejado e rode novamente.", vbCritical
+            ObterRetanguloMagenta = False
+            Exit Function
+        End If
+    Else
+        Set retanguloBase = maiorShape
+    End If
+
+    ObterRetanguloMagenta = True
+End Function
+
+Public Function TentarObterTextoSelecionado(ByRef textoSelecionado As Shape) As Boolean
+    Dim sr As ShapeRange
+    Dim sh As Shape
+
+    TentarObterTextoSelecionado = False
+    Set sr = ActiveSelectionRange
+
+    For Each sh In sr
+        If sh.Type = cdrTextShape Then
+            Set textoSelecionado = sh
+            TentarObterTextoSelecionado = True
+            Exit Function
+        End If
+    Next sh
+End Function
+
+Public Function ColetarAcessorios(ByVal indice As Object, _
+                                   ByRef ehMG As Boolean, _
+                                   ByRef ehAD As Boolean) As Object
+    Dim contadores As Object
+    Set contadores = InicializarContadores(indice)
+
+    ehMG = False
+    ehAD = False
+
+    Dim sh As Shape
+    For Each sh In ActivePage.Shapes
+        ProcessarShape sh, indice, contadores, ehMG, ehAD
+    Next sh
+
+    Set ColetarAcessorios = contadores
+End Function
+
+Private Function InicializarContadores(ByVal indice As Object) As Object
+    Dim contadores As Object
+    Dim chave As Variant
+
+    Set contadores = CreateObject("Scripting.Dictionary")
+    For Each chave In indice.Keys
+        contadores.Add CStr(chave), 0
+    Next chave
+
+    Set InicializarContadores = contadores
+End Function
+
+Private Sub ProcessarShape(ByVal sh As Shape, _
+                            ByVal indice As Object, _
+                            ByRef contadores As Object, _
+                            ByRef ehMG As Boolean, _
+                            ByRef ehAD As Boolean)
+    On Error GoTo ProximoShape
+
+    Dim nomeShape As String
+    Dim itemAcessorio As Object
+
+    nomeShape = UCase$(sh.Name)
+    If indice.Exists(nomeShape) Then
+        contadores(nomeShape) = CLng(contadores(nomeShape)) + 1
+        Set itemAcessorio = indice(nomeShape)
+        Select Case CStr(itemAcessorio("Compat"))
+            Case COMPAT_MG: ehMG = True
+            Case COMPAT_AD: ehAD = True
+        End Select
+    End If
+
+    If sh.Type = cdrGroupShape Then
+        Dim filho As Shape
+        For Each filho In sh.Shapes
+            ProcessarShape filho, indice, contadores, ehMG, ehAD
+        Next filho
+    End If
+
+    Exit Sub
+ProximoShape:
+    Err.Clear
+End Sub
+
+Private Function ShapeTemContornoMagenta(ByVal s As Shape) As Boolean
+    On Error GoTo Falha
+
+    ShapeTemContornoMagenta = False
+    If s Is Nothing Then Exit Function
+    If s.Outline Is Nothing Then Exit Function
+
+    ShapeTemContornoMagenta = _
+        Abs(s.Outline.Color.CMYKCyan - 0) < TOLERANCIA_COR_CMYK And _
+        Abs(s.Outline.Color.CMYKMagenta - 100) < TOLERANCIA_COR_CMYK And _
+        Abs(s.Outline.Color.CMYKYellow - 0) < TOLERANCIA_COR_CMYK And _
+        Abs(s.Outline.Color.CMYKBlack - 0) < TOLERANCIA_COR_CMYK
+
+    Exit Function
+Falha:
+    ShapeTemContornoMagenta = False
+    Err.Clear
+End Function
+
+
+
