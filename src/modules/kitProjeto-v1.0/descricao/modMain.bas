@@ -41,4 +41,3 @@ Sub descricaoAuto()
     MsgBox "Texto atualizado com sucesso!", vbInformation
 
 End Sub
-

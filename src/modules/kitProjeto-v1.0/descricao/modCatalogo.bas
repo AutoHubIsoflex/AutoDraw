@@ -23,7 +23,10 @@ Private Function ObterDefinicoesBrutas() As Variant
         "ESC-A4-VD-MACRO|ESC-A4-VD|NEUTRO", _
         "ESC-A4-VM-MACRO|ESC-A4-VM|NEUTRO", _
         "ESC-A4-PT-MACRO|ESC-A4-PT|NEUTRO", _
-        "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO" _
+        "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO", _
+        "CAVALETE-METALON3-BR|CAVALETE METALON 3 BR|NEUTRO", _
+        "CAVALETE-METALON3-CZ|CAVALETE METALON 3 CZ|NEUTRO", _
+        "CAVALETE-METALON3-PT|CAVALETE METALON 3 PT|NEUTRO" _
     )
 End Function
 
@@ -63,6 +66,8 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
+
+
 
 
 

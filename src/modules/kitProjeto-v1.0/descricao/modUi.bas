@@ -50,4 +50,3 @@ Public Function ConfirmarCompatibilidade(ByVal tipo As tipoQuadro, _
     ConfirmarCompatibilidade = True
 End Function
 
-

@@ -23,11 +23,11 @@ Private Function MontarTextoPrincipal(ByVal ehMagnetico As Boolean, _
         MontarTextoPrincipal = "QUADRO BRANCO MAGNÉTICO" & vbCrLf & _
                                "PARA ESCRITA COM IMPRESSÃO " & vbCrLf & _
                                "DIGITAL UV. E LAMINAÇÃO PYT" & vbCrLf & _
-                               "MED " & altura & "x" & largura & " - QPMM"
+                               "MED " & altura & "x" & largura & "MM - QPMM"
     Else
         MontarTextoPrincipal = "QUADRO BRANCO PARA ESCRITA" & vbCrLf & _
                                "COM IMPRESSÃO DIGITAL UV. E" & vbCrLf & _
-                               "LAMINAÇÃO PYT MED " & altura & "x" & largura & vbCrLf & _
+                               "LAMINAÇÃO PYT MED " & altura & "x" & largura & "MM" & vbCrLf & _
                                "- QPMS"
     End If
 End Function
@@ -45,7 +45,11 @@ Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
         nomeShape = CStr(item("ShapeName"))
         quantidade = CLng(contadores(nomeShape))
         If quantidade > 0 Then
-            texto = texto & "- " & quantidade & " " & CStr(item("OutputCode")) & vbCrLf
+            If EhCavaleteMetalon3(nomeShape) Then
+                texto = texto & "- " & CStr(item("OutputCode")) & vbCrLf
+            Else
+                texto = texto & "- " & quantidade & " " & CStr(item("OutputCode")) & vbCrLf
+            End If
         End If
     Next item
 
@@ -62,5 +66,11 @@ Private Function AnexarSecaoAcessorios(ByVal textoPrincipal As String, _
                                 textoAcessorios
     End If
 End Function
+
+Private Function EhCavaleteMetalon3(ByVal nomeShape As String) As Boolean
+    EhCavaleteMetalon3 = (Left$(UCase$(nomeShape), 18) = "CAVALETE-METALON3-")
+End Function
+
+
 
 

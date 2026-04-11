@@ -157,5 +157,3 @@ Falha:
     Err.Clear
 End Function
 
-
-
