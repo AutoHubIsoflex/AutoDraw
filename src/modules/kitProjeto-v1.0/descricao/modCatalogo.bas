@@ -13,6 +13,10 @@ Public Const COMPAT_NEUTRO As String = "NEUTRO"
 
 Private Function ObterDefinicoesBrutas() As Variant
     ObterDefinicoesBrutas = Array( _
+        "KSIP-A3-AD-MACRO|KSIP-A3-AD|AD", _
+        "KSIP-A3-MG-MACRO|KSIP-A3-MG|MG", _
+        "KSIR-A3-AD-MACRO|KSIR-A3-AD|AD", _
+        "KSIR-A3-MG-MACRO|KSIR-A3-MG|MG", _
         "KSIR-A4-AD-MACRO|KSIR-A4-AD|AD", _
         "KSIP-A4-AD-MACRO|KSIP-A4-AD|AD", _
         "KSIR-A4-MG-MACRO|KSIR-A4-MG|MG", _
@@ -66,6 +70,8 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
+
+
 
 
 
