@@ -30,6 +30,7 @@ Private Function ObterDefinicoesBrutas() As Variant
         "PTI-MACRO|PTI|NEUTRO", _
         "PTC-MACRO|PTC|NEUTRO", _
         "PTL-MACRO|PTL|NEUTRO", _
+        "TESTEIRA-MACRO|TEST PS MED ALTXLARGURAMM|NEUTRO", _
         "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO", _
         "CAVALETE-METALON3-BR|CAVALETE METALON 3 BR|NEUTRO", _
         "CAVALETE-METALON3-CZ|CAVALETE METALON 3 CZ|NEUTRO", _
@@ -73,10 +74,4 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
-
-
-
-
-
-
 

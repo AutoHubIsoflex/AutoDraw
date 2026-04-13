@@ -30,14 +30,16 @@ Sub descricaoAuto()
     Dim ehMG As Boolean
     Dim ehAD As Boolean
     Dim contadores As Object
-    Set contadores = modLayout.ColetarAcessorios(indice, ehMG, ehAD)
+    Dim medidasAcessorios As Object
+    Set contadores = modLayout.ColetarAcessorios(indice, ehMG, ehAD, medidasAcessorios)
 
     If Not modUi.ConfirmarCompatibilidade(tipoQuadro, ehMG, ehAD) Then Exit Sub
 
     Dim ehMagnetico As Boolean
     ehMagnetico = (tipoQuadro = tqQPMM_P)
 
-    txt.Text.Story = modDescricao.MontarTextoCompleto(ehMagnetico, altura, largura, catalogo, contadores)
+    txt.Text.Story = modDescricao.MontarTextoCompleto(ehMagnetico, altura, largura, catalogo, contadores, medidasAcessorios)
     MsgBox "Texto atualizado com sucesso!", vbInformation
 
 End Sub
+

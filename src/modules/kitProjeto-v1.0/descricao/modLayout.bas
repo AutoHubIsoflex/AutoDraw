@@ -79,16 +79,18 @@ End Function
 
 Public Function ColetarAcessorios(ByVal indice As Object, _
                                    ByRef ehMG As Boolean, _
-                                   ByRef ehAD As Boolean) As Object
+                                   ByRef ehAD As Boolean, _
+                                   ByRef medidasAcessorios As Object) As Object
     Dim contadores As Object
     Set contadores = InicializarContadores(indice)
+    Set medidasAcessorios = CreateObject("Scripting.Dictionary")
 
     ehMG = False
     ehAD = False
 
     Dim sh As Shape
     For Each sh In ActivePage.Shapes
-        ProcessarShape sh, indice, contadores, ehMG, ehAD
+        ProcessarShape sh, indice, contadores, ehMG, ehAD, medidasAcessorios
     Next sh
 
     Set ColetarAcessorios = contadores
@@ -110,7 +112,8 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
                             ByVal indice As Object, _
                             ByRef contadores As Object, _
                             ByRef ehMG As Boolean, _
-                            ByRef ehAD As Boolean)
+                            ByRef ehAD As Boolean, _
+                            ByRef medidasAcessorios As Object)
     On Error GoTo ProximoShape
 
     Dim nomeShape As String
@@ -119,6 +122,9 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     nomeShape = UCase$(sh.Name)
     If indice.Exists(nomeShape) Then
         contadores(nomeShape) = CLng(contadores(nomeShape)) + 1
+        If Not medidasAcessorios.Exists(nomeShape) Then
+            medidasAcessorios.Add nomeShape, FormatarMedidaTexto(sh.SizeHeight) & "x" & FormatarMedidaTexto(sh.SizeWidth)
+        End If
         Set itemAcessorio = indice(nomeShape)
         Select Case CStr(itemAcessorio("Compat"))
             Case COMPAT_MG: ehMG = True
@@ -129,7 +135,7 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     If sh.Type = cdrGroupShape Then
         Dim filho As Shape
         For Each filho In sh.Shapes
-            ProcessarShape filho, indice, contadores, ehMG, ehAD
+            ProcessarShape filho, indice, contadores, ehMG, ehAD, medidasAcessorios
         Next filho
     End If
 
@@ -137,6 +143,17 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
 ProximoShape:
     Err.Clear
 End Sub
+
+Private Function FormatarMedidaTexto(ByVal medida As Double) As String
+    Dim valorArredondado As Double
+    valorArredondado = Round(medida, 1)
+
+    If Abs(valorArredondado - CLng(valorArredondado)) < 0.0001 Then
+        FormatarMedidaTexto = CStr(CLng(valorArredondado))
+    Else
+        FormatarMedidaTexto = Replace(Format$(valorArredondado, "0.0"), ".", ",")
+    End If
+End Function
 
 Private Function ShapeTemContornoMagenta(ByVal s As Shape) As Boolean
     On Error GoTo Falha
@@ -156,4 +173,6 @@ Falha:
     ShapeTemContornoMagenta = False
     Err.Clear
 End Function
+
+
 
