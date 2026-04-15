@@ -3,6 +3,11 @@ Attribute VB_Name = "modLayout"
 Option Explicit
 
 Private Const TOLERANCIA_COR_CMYK As Double = 0.5
+Private Const SHAPE_KSVR_A4_AD As String = "KSVR-A4-AD-MACRO"
+Private Const SHAPE_KSVR_A4_MG As String = "KSVR-A4-MG-MACRO"
+Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
+Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
+Private Const SHAPE_BORDA_MACRO As String = "BORDA-MACRO"
 
 Public Function ObterRetanguloMagenta(ByRef retanguloBase As Shape) As Boolean
     Dim shapePagina As Shape
@@ -120,6 +125,8 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     Dim itemAcessorio As Object
 
     nomeShape = UCase$(sh.Name)
+    RegistrarVarianteBordaSeAplicavel nomeShape, sh, medidasAcessorios
+
     If indice.Exists(nomeShape) Then
         contadores(nomeShape) = CLng(contadores(nomeShape)) + 1
         If Not medidasAcessorios.Exists(nomeShape) Then
@@ -143,6 +150,73 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
 ProximoShape:
     Err.Clear
 End Sub
+
+Private Sub RegistrarVarianteBordaSeAplicavel(ByVal nomeShape As String, _
+                                               ByVal shapeAcessorio As Shape, _
+                                               ByRef medidasAcessorios As Object)
+    If Not EhAcessorioComVarianteBorda(nomeShape) Then Exit Sub
+
+    Dim variante As String
+    variante = ObterVarianteBorda(shapeAcessorio)
+    If variante = "" Then Exit Sub
+
+    IncrementarContadorVariante medidasAcessorios, nomeShape, variante
+End Sub
+
+Private Function ObterVarianteBorda(ByVal shapeAcessorio As Shape) As String
+    Dim shapeBorda As Shape
+    Set shapeBorda = EncontrarShapePorNome(shapeAcessorio, SHAPE_BORDA_MACRO)
+    If shapeBorda Is Nothing Then Exit Function
+
+    Select Case shapeBorda.Fill.Type
+        Case cdrUniformFill
+            ObterVarianteBorda = "UNIFORME"
+        Case cdrFountainFill
+            ObterVarianteBorda = "DEGRADÊ"
+    End Select
+End Function
+
+Private Function EhAcessorioComVarianteBorda(ByVal nomeShape As String) As Boolean
+    Select Case UCase$(nomeShape)
+        Case SHAPE_KSVR_A4_AD, SHAPE_KSVR_A4_MG, SHAPE_KSVP_A4_AD, SHAPE_KSVP_A4_MG
+            EhAcessorioComVarianteBorda = True
+    End Select
+End Function
+
+Private Sub IncrementarContadorVariante(ByRef medidasAcessorios As Object, _
+                                        ByVal nomeShape As String, _
+                                        ByVal variante As String)
+    Dim chave As String
+    chave = ChaveQtdVariante(nomeShape, variante)
+
+    If medidasAcessorios.Exists(chave) Then
+        medidasAcessorios(chave) = CLng(medidasAcessorios(chave)) + 1
+    Else
+        medidasAcessorios.Add chave, 1
+    End If
+End Sub
+
+Private Function ChaveQtdVariante(ByVal nomeShape As String, _
+                                  ByVal variante As String) As String
+    ChaveQtdVariante = UCase$(nomeShape) & "_VARIANTE_" & UCase$(variante) & "_QTD"
+End Function
+
+Private Function EncontrarShapePorNome(ByVal shapeRaiz As Shape, _
+                                       ByVal nomeAlvo As String) As Shape
+    Dim filho As Shape
+
+    If UCase$(shapeRaiz.Name) = UCase$(nomeAlvo) Then
+        Set EncontrarShapePorNome = shapeRaiz
+        Exit Function
+    End If
+
+    If shapeRaiz.Type <> cdrGroupShape Then Exit Function
+
+    For Each filho In shapeRaiz.Shapes
+        Set EncontrarShapePorNome = EncontrarShapePorNome(filho, nomeAlvo)
+        If Not EncontrarShapePorNome Is Nothing Then Exit Function
+    Next filho
+End Function
 
 Private Function FormatarMedidaTexto(ByVal medida As Double) As String
     Dim valorArredondado As Double
@@ -173,6 +247,4 @@ Falha:
     ShapeTemContornoMagenta = False
     Err.Clear
 End Function
-
-
 
