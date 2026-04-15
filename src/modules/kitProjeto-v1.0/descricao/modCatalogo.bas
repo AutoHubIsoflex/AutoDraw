@@ -12,30 +12,40 @@ Public Const COMPAT_MG     As String = "MG"
 Public Const COMPAT_NEUTRO As String = "NEUTRO"
 
 Private Function ObterDefinicoesBrutas() As Variant
-    ObterDefinicoesBrutas = Array( _
-        "KSIP-A3-AD-MACRO|KSIP-A3-AD|AD", _
-        "KSIP-A3-MG-MACRO|KSIP-A3-MG|MG", _
-        "KSIR-A3-AD-MACRO|KSIR-A3-AD|AD", _
-        "KSIR-A3-MG-MACRO|KSIR-A3-MG|MG", _
-        "KSIR-A4-AD-MACRO|KSIR-A4-AD|AD", _
-        "KSIP-A4-AD-MACRO|KSIP-A4-AD|AD", _
-        "KSIR-A4-MG-MACRO|KSIR-A4-MG|MG", _
-        "KSIP-A4-MG-MACRO|KSIP-A4-MG|MG", _
-        "ESC-A4-CZ-MACRO|ESC-A4-CZ|NEUTRO", _
-        "ESC-A4-AM-MACRO|ESC-A4-AM|NEUTRO", _
-        "ESC-A4-AZ-MACRO|ESC-A4-AZ|NEUTRO", _
-        "ESC-A4-VD-MACRO|ESC-A4-VD|NEUTRO", _
-        "ESC-A4-VM-MACRO|ESC-A4-VM|NEUTRO", _
-        "ESC-A4-PT-MACRO|ESC-A4-PT|NEUTRO", _
-        "PTI-MACRO|PTI|NEUTRO", _
-        "PTC-MACRO|PTC|NEUTRO", _
-        "PTL-MACRO|PTL|NEUTRO", _
-        "TESTEIRA-MACRO|TEST PS MED ALTXLARGURAMM|NEUTRO", _
-        "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO", _
-        "CAVALETE-METALON3-BR|CAVALETE METALON 3 BR|NEUTRO", _
-        "CAVALETE-METALON3-CZ|CAVALETE METALON 3 CZ|NEUTRO", _
-        "CAVALETE-METALON3-PT|CAVALETE METALON 3 PT|NEUTRO" _
-    )
+    Dim defs As Collection
+    Set defs = New Collection
+
+    defs.Add "KSIP-A3-AD-MACRO|KSIP-A3-AD|AD"
+    defs.Add "KSIP-A3-MG-MACRO|KSIP-A3-MG|MG"
+    defs.Add "KSIR-A3-AD-MACRO|KSIR-A3-AD|AD"
+    defs.Add "KSIR-A3-MG-MACRO|KSIR-A3-MG|MG"
+    defs.Add "KSIR-A4-AD-MACRO|KSIR-A4-AD|AD"
+    defs.Add "KSIP-A4-AD-MACRO|KSIP-A4-AD|AD"
+    defs.Add "KSIR-A4-MG-MACRO|KSIR-A4-MG|MG"
+    defs.Add "KSIP-A4-MG-MACRO|KSIP-A4-MG|MG"
+    defs.Add "ESC-A4-CZ-MACRO|ESC-A4-CZ|NEUTRO"
+    defs.Add "ESC-A4-AM-MACRO|ESC-A4-AM|NEUTRO"
+    defs.Add "ESC-A4-AZ-MACRO|ESC-A4-AZ|NEUTRO"
+    defs.Add "ESC-A4-VD-MACRO|ESC-A4-VD|NEUTRO"
+    defs.Add "ESC-A4-VM-MACRO|ESC-A4-VM|NEUTRO"
+    defs.Add "ESC-A4-PT-MACRO|ESC-A4-PT|NEUTRO"
+    defs.Add "PTI-MACRO|PTI|NEUTRO"
+    defs.Add "PTC-MACRO|PTC|NEUTRO"
+    defs.Add "PTL-MACRO|PTL|NEUTRO"
+    defs.Add "TESTEIRA-MACRO|TEST PS MED ALTXLARGURAMM|NEUTRO"
+    defs.Add "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO"
+    defs.Add "BASE-BIG-ISOLEAN-MACRO|BASE BIG ISOLEAN A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-AM-MACRO|BIG ISOLEAN AM A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-AZ-MACRO|BIG ISOLEAN AZ A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-VM-MACRO|BIG ISOLEAN VM A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-VD-MACRO|BIG ISOLEAN VD A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-CZ-MACRO|BIG ISOLEAN CZ A4|NEUTRO"
+    defs.Add "BIG-ISOLEAN-CR-MACRO|BIG ISOLEAN CR A4|NEUTRO"
+    defs.Add "CAVALETE-METALON3-BR|CAVALETE METALON 3 BR|NEUTRO"
+    defs.Add "CAVALETE-METALON3-CZ|CAVALETE METALON 3 CZ|NEUTRO"
+    defs.Add "CAVALETE-METALON3-PT|CAVALETE METALON 3 PT|NEUTRO"
+
+    Set ObterDefinicoesBrutas = defs
 End Function
 
 Public Function CriarCatalogoAcessorios() As Collection
@@ -74,4 +84,7 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
+
+
+
 
