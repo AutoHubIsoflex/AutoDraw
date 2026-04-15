@@ -35,10 +35,7 @@ Sub descricaoAuto()
 
     If Not modUi.ConfirmarCompatibilidade(tipoQuadro, ehMG, ehAD) Then Exit Sub
 
-    Dim ehMagnetico As Boolean
-    ehMagnetico = (tipoQuadro = tqQPMM_P)
-
-    txt.Text.Story = modDescricao.MontarTextoCompleto(ehMagnetico, altura, largura, catalogo, contadores, medidasAcessorios)
+    txt.Text.Story = modDescricao.MontarTextoCompleto(tipoQuadro, altura, largura, catalogo, contadores, medidasAcessorios)
     MsgBox "Texto atualizado com sucesso!", vbInformation
 
 End Sub

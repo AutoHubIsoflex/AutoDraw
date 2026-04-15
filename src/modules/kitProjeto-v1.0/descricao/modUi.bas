@@ -15,6 +15,7 @@ Public Function SolicitarTipoQuadro() As tipoQuadro
     Select Case selecionado
         Case "QPMS-P": SolicitarTipoQuadro = tqQPMS_P
         Case "QPMM-P": SolicitarTipoQuadro = tqQPMM_P
+        Case "QBTA":   SolicitarTipoQuadro = tqQBTA
         Case Else:     SolicitarTipoQuadro = -1
     End Select
 

@@ -5,6 +5,7 @@ Option Explicit
 Public Enum tipoQuadro
     tqQPMS_P = 0
     tqQPMM_P = 1
+    tqQBTA = 2
 End Enum
 
 Public Const COMPAT_AD     As String = "AD"

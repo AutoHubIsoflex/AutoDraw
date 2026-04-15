@@ -22,31 +22,34 @@ Private Sub lblTipo_Click()
 End Sub
 
 Private Sub UserForm_Initialize()
-    With Me.cboTipoQuadro
-        .Clear
-        .AddItem "QPMS-P"
-        .AddItem "QPMM-P"
-        .ListIndex = 0
-    End With
+With Me.cboTipoQuadro
+.Clear
+.AddItem "QPMS-P"
+.AddItem "QPMM-P"
+.AddItem "QBTA"
+.ListIndex = 0
+End With
 
-    TipoSelecionado = ""
+TipoSelecionado = ""
+
 End Sub
 
 Private Sub btnConfirmar_Click()
-    If Me.cboTipoQuadro.ListIndex < 0 Then
-        MsgBox "Selecione um tipo de quadro.", vbExclamation
-        Exit Sub
-    End If
+If Me.cboTipoQuadro.ListIndex < 0 Then
+MsgBox "Selecione um tipo de quadro.", vbExclamation
+Exit Sub
+End If
 
-    TipoSelecionado = Me.cboTipoQuadro.Value
-    Me.Hide
+TipoSelecionado = Me.cboTipoQuadro.Value
+Me.Hide
+
 End Sub
 
 Private Sub btnCancelar_Click()
-    TipoSelecionado = ""
-    Me.Hide
+TipoSelecionado = ""
+Me.Hide
 End Sub
 
 Private Sub cboTipoQuadro_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
-    btnConfirmar_Click
+btnConfirmar_Click
 End Sub

@@ -7,14 +7,14 @@ Private Const SHAPE_KSVR_A4_MG As String = "KSVR-A4-MG-MACRO"
 Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
 Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
 
-Public Function MontarTextoCompleto(ByVal ehMagnetico As Boolean, _
+Public Function MontarTextoCompleto(ByVal tipo As tipoQuadro, _
                                      ByVal altura As Double, _
                                      ByVal largura As Double, _
                                      ByVal catalogo As Collection, _
                                      ByVal contadores As Object, _
                                      ByVal medidasAcessorios As Object) As String
     Dim texto As String
-    texto = MontarTextoPrincipal(ehMagnetico, altura, largura)
+    texto = MontarTextoPrincipal(tipo, altura, largura)
 
     Dim secaoAcessorios As String
     secaoAcessorios = MontarTextoAcessorios(catalogo, contadores, medidasAcessorios)
@@ -22,20 +22,24 @@ Public Function MontarTextoCompleto(ByVal ehMagnetico As Boolean, _
     MontarTextoCompleto = AnexarSecaoAcessorios(texto, secaoAcessorios)
 End Function
 
-Private Function MontarTextoPrincipal(ByVal ehMagnetico As Boolean, _
+Private Function MontarTextoPrincipal(ByVal tipo As tipoQuadro, _
                                        ByVal altura As Double, _
                                        ByVal largura As Double) As String
-    If ehMagnetico Then
-        MontarTextoPrincipal = "QUADRO BRANCO MAGNÉTICO" & vbCrLf & _
-                               "PARA ESCRITA COM IMPRESSÃO " & vbCrLf & _
-                               "DIGITAL UV. E LAMINAÇÃO PYT" & vbCrLf & _
-                               "MED " & altura & "x" & largura & "MM - QPMM"
-    Else
-        MontarTextoPrincipal = "QUADRO BRANCO PARA ESCRITA" & vbCrLf & _
-                               "COM IMPRESSÃO DIGITAL UV. E" & vbCrLf & _
-                               "LAMINAÇÃO PYT MED " & altura & "x" & largura & "MM" & vbCrLf & _
-                               "- QPMS"
-    End If
+    Select Case tipo
+        Case tqQPMM_P
+            MontarTextoPrincipal = "QUADRO BRANCO MAGNÉTICO" & vbCrLf & _
+                                   "PARA ESCRITA COM IMPRESSÃO " & vbCrLf & _
+                                   "DIGITAL UV. E LAMINAÇÃO PYT" & vbCrLf & _
+                                   "MED " & altura & "x" & largura & "MM - QPMM"
+        Case tqQBTA
+            MontarTextoPrincipal = "QUADRO BRANCO MEDINDO" & vbCrLf & _
+                                   "(" & altura & "X" & largura & ")MM - QBTA"
+        Case Else
+            MontarTextoPrincipal = "QUADRO BRANCO PARA ESCRITA" & vbCrLf & _
+                                   "COM IMPRESSÃO DIGITAL UV. E" & vbCrLf & _
+                                   "LAMINAÇÃO PYT MED " & altura & "x" & largura & "MM" & vbCrLf & _
+                                   "- QPMS"
+    End Select
 End Function
 
 Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
