@@ -56,6 +56,10 @@ Private Function ObterDefinicoesBrutas() As Variant
     defs.Add "KSIR-A2-MG-MACRO|KSIR-A2-MG|MG"
     defs.Add "KSIP-A2-AD-MACRO|KSIP-A2-AD|AD"
     defs.Add "KSIP-A2-MG-MACRO|KSIP-A2-MG|MG"
+    defs.Add "KSIR-A6-AD-MACRO|KSIR-A6-AD|AD"
+    defs.Add "KSIR-A6-MG-MACRO|KSIR-A6-MG|MG"
+    defs.Add "KSIP-A6-AD-MACRO|KSIP-A6-AD|AD"
+    defs.Add "KSIP-A6-MG-MACRO|KSIP-A6-MG|MG"
     
     Set ObterDefinicoesBrutas = defs
 End Function
