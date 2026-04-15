@@ -44,6 +44,10 @@ Private Function ObterDefinicoesBrutas() As Variant
     defs.Add "CAVALETE-METALON3-BR|CAVALETE METALON 3 BR|NEUTRO"
     defs.Add "CAVALETE-METALON3-CZ|CAVALETE METALON 3 CZ|NEUTRO"
     defs.Add "CAVALETE-METALON3-PT|CAVALETE METALON 3 PT|NEUTRO"
+    defs.Add "KSIR-A5-AD-MACRO|KSIR-A5-AD|AD"
+    defs.Add "KSIR-A5-MG-MACRO|KSIR-A5-MG|MG"
+    defs.Add "KSIP-A5-AD-MACRO|KSIP-A5-AD|AD"
+    defs.Add "KSIP-A5-MG-MACRO|KSIP-A5-MG|MG"
 
     Set ObterDefinicoesBrutas = defs
 End Function
@@ -84,7 +88,4 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
-
-
-
 
