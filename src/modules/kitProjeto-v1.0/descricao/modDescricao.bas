@@ -72,6 +72,8 @@ Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
         End If
     Next item
 
+    texto = texto & MontarLinhasKanbanPorGrupo(medidasAcessorios)
+
     MontarTextoAcessorios = texto
 End Function
 
@@ -220,4 +222,89 @@ Private Function MontarLinhasAcessorioComMedida(ByVal nomeShape As String, _
     MontarLinhasAcessorioComMedida = "- " & quantidadeTotal & " " & _
                                      ResolverOutputCode(nomeShape, outputCodePadrao, medidasAcessorios) & vbCrLf
 End Function
+
+Private Function MontarLinhasKanbanPorGrupo(ByVal medidasAcessorios As Object) As String
+    Dim texto As String
+    Dim chave As Variant
+    Dim assinatura As String
+    Dim partes() As String
+    Dim qtdGrupos As Long
+    Dim qtdBaseNoGrupo As Long
+    Dim qtdBasesTotal As Long
+    Dim qtdTirasTotal As Long
+    Dim qtdVD As Long
+    Dim qtdAM As Long
+    Dim qtdVM As Long
+    Dim qtdCZ As Long
+    Dim qtdPakIntNoGrupo As Long
+    Dim qtdPakIntPorBase As Long
+    Dim detalheCores As String
+
+    texto = ""
+    If medidasAcessorios Is Nothing Then Exit Function
+
+    For Each chave In medidasAcessorios.Keys
+        If Left$(CStr(chave), 11) = "KANBAN_SIG_" Then
+            assinatura = Mid$(CStr(chave), 12)
+            partes = Split(assinatura, "|")
+
+            If UBound(partes) >= 5 Then
+                qtdGrupos = CLng(medidasAcessorios(chave))
+                qtdBaseNoGrupo = CLng(partes(0))
+                qtdBasesTotal = qtdBaseNoGrupo * qtdGrupos
+                qtdTirasTotal = CLng(partes(1))
+                qtdVD = CLng(partes(2))
+                qtdAM = CLng(partes(3))
+                qtdVM = CLng(partes(4))
+                qtdCZ = CLng(partes(5))
+                qtdPakIntNoGrupo = 0
+                qtdPakIntPorBase = 0
+                If UBound(partes) >= 6 Then
+                    qtdPakIntNoGrupo = CLng(partes(6))
+                    qtdPakIntPorBase = qtdPakIntNoGrupo
+                    If qtdBaseNoGrupo > 0 Then
+                        If qtdPakIntNoGrupo Mod qtdBaseNoGrupo = 0 Then
+                            qtdPakIntPorBase = qtdPakIntNoGrupo \ qtdBaseNoGrupo
+                        End If
+                    End If
+                End If
+
+                detalheCores = MontarDetalheCoresKanban(qtdVD, qtdAM, qtdVM, qtdCZ)
+                texto = texto & "- " & qtdBasesTotal & " BASE KANBAN C/ " & qtdTirasTotal & _
+                        " TIRAS T CADA" & vbCrLf & _
+                        "(" & detalheCores & ")"
+                If qtdPakIntPorBase > 0 Then
+                    texto = texto & " + " & qtdPakIntPorBase & " PAK INT POR BASE"
+                End If
+                texto = texto & vbCrLf
+            End If
+        End If
+    Next chave
+
+    MontarLinhasKanbanPorGrupo = texto
+End Function
+
+Private Function MontarDetalheCoresKanban(ByVal qtdVD As Long, _
+                                          ByVal qtdAM As Long, _
+                                          ByVal qtdVM As Long, _
+                                          ByVal qtdCZ As Long) As String
+    Dim detalhe As String
+
+    detalhe = ""
+    AdicionarCorKanban detalhe, qtdVD, "VD"
+    AdicionarCorKanban detalhe, qtdAM, "AM"
+    AdicionarCorKanban detalhe, qtdVM, "VM"
+    AdicionarCorKanban detalhe, qtdCZ, "CZ"
+
+    MontarDetalheCoresKanban = detalhe
+End Function
+
+Private Sub AdicionarCorKanban(ByRef detalhe As String, _
+                               ByVal quantidade As Long, _
+                               ByVal cor As String)
+    If quantidade <= 0 Then Exit Sub
+
+    If detalhe <> "" Then detalhe = detalhe & ","
+    detalhe = detalhe & quantidade & cor
+End Sub
 

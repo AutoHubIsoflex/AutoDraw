@@ -8,6 +8,12 @@ Private Const SHAPE_KSVR_A4_MG As String = "KSVR-A4-MG-MACRO"
 Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
 Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
 Private Const SHAPE_BORDA_MACRO As String = "BORDA-MACRO"
+Private Const SHAPE_BASE_KANBAN As String = "BASE-KANBAN-MACRO"
+Private Const SHAPE_TIRA_T_VD As String = "TIRA-T-VD-MACRO"
+Private Const SHAPE_TIRA_T_AM As String = "TIRA-T-AM-MACRO"
+Private Const SHAPE_TIRA_T_VM As String = "TIRA-T-VM-MACRO"
+Private Const SHAPE_TIRA_T_CZ As String = "TIRA-T-CZ-MACRO"
+Private Const SHAPE_PAK_INT As String = "PAK-INT-MACRO"
 
 Public Function ObterRetanguloMagenta(ByRef retanguloBase As Shape) As Boolean
     Dim shapePagina As Shape
@@ -125,6 +131,7 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     Dim itemAcessorio As Object
 
     nomeShape = UCase$(sh.Name)
+    RegistrarGrupoKanbanSeAplicavel sh, medidasAcessorios
     RegistrarVarianteBordaSeAplicavel nomeShape, sh, medidasAcessorios
 
     If indice.Exists(nomeShape) Then
@@ -155,6 +162,39 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     Exit Sub
 ProximoShape:
     Err.Clear
+End Sub
+
+Private Sub RegistrarGrupoKanbanSeAplicavel(ByVal shapeGrupo As Shape, _
+                                            ByRef medidasAcessorios As Object)
+    If shapeGrupo.Type <> cdrGroupShape Then Exit Sub
+
+    Dim qtdBase As Long
+    Dim qtdVD As Long
+    Dim qtdAM As Long
+    Dim qtdVM As Long
+    Dim qtdCZ As Long
+    Dim qtdPakInt As Long
+    Dim qtdTotalTiras As Long
+    Dim chave As String
+
+    qtdBase = ContarShapesPorNome(shapeGrupo, SHAPE_BASE_KANBAN)
+    If qtdBase = 0 Then Exit Sub
+
+    qtdVD = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_VD)
+    qtdAM = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_AM)
+    qtdVM = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_VM)
+    qtdCZ = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_CZ)
+    qtdPakInt = ContarShapesPorNome(shapeGrupo, SHAPE_PAK_INT)
+    qtdTotalTiras = qtdVD + qtdAM + qtdVM + qtdCZ
+    If qtdTotalTiras = 0 Then Exit Sub
+
+    chave = "KANBAN_SIG_" & qtdBase & "|" & qtdTotalTiras & "|" & qtdVD & "|" & qtdAM & "|" & qtdVM & "|" & qtdCZ & "|" & qtdPakInt
+
+    If medidasAcessorios.Exists(chave) Then
+        medidasAcessorios(chave) = CLng(medidasAcessorios(chave)) + 1
+    Else
+        medidasAcessorios.Add chave, 1
+    End If
 End Sub
 
 Private Sub IncrementarContadorMedidaAcessorio(ByRef medidasAcessorios As Object, _
@@ -265,5 +305,20 @@ Private Function ShapeTemContornoMagenta(ByVal s As Shape) As Boolean
 Falha:
     ShapeTemContornoMagenta = False
     Err.Clear
+End Function
+
+Private Function ContarShapesPorNome(ByVal shapeRaiz As Shape, _
+                                     ByVal nomeAlvo As String) As Long
+    Dim filho As Shape
+
+    If UCase$(shapeRaiz.Name) = UCase$(nomeAlvo) Then
+        ContarShapesPorNome = ContarShapesPorNome + 1
+    End If
+
+    If shapeRaiz.Type <> cdrGroupShape Then Exit Function
+
+    For Each filho In shapeRaiz.Shapes
+        ContarShapesPorNome = ContarShapesPorNome + ContarShapesPorNome(filho, nomeAlvo)
+    Next filho
 End Function
 
