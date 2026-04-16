@@ -128,10 +128,16 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     RegistrarVarianteBordaSeAplicavel nomeShape, sh, medidasAcessorios
 
     If indice.Exists(nomeShape) Then
+        Dim medidaTexto As String
+
         contadores(nomeShape) = CLng(contadores(nomeShape)) + 1
+        medidaTexto = FormatarMedidaTexto(sh.SizeHeight) & "x" & FormatarMedidaTexto(sh.SizeWidth)
+
         If Not medidasAcessorios.Exists(nomeShape) Then
-            medidasAcessorios.Add nomeShape, FormatarMedidaTexto(sh.SizeHeight) & "x" & FormatarMedidaTexto(sh.SizeWidth)
+            medidasAcessorios.Add nomeShape, medidaTexto
         End If
+        IncrementarContadorMedidaAcessorio medidasAcessorios, nomeShape, medidaTexto
+
         Set itemAcessorio = indice(nomeShape)
         Select Case CStr(itemAcessorio("Compat"))
             Case COMPAT_MG: ehMG = True
@@ -149,6 +155,19 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
     Exit Sub
 ProximoShape:
     Err.Clear
+End Sub
+
+Private Sub IncrementarContadorMedidaAcessorio(ByRef medidasAcessorios As Object, _
+                                               ByVal nomeShape As String, _
+                                               ByVal medidaTexto As String)
+    Dim chave As String
+    chave = UCase$(nomeShape) & "_MEDIDA_" & medidaTexto
+
+    If medidasAcessorios.Exists(chave) Then
+        medidasAcessorios(chave) = CLng(medidasAcessorios(chave)) + 1
+    Else
+        medidasAcessorios.Add chave, 1
+    End If
 End Sub
 
 Private Sub RegistrarVarianteBordaSeAplicavel(ByVal nomeShape As String, _

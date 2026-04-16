@@ -57,12 +57,16 @@ Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
         nomeShape = CStr(item("ShapeName"))
         quantidade = CLng(contadores(nomeShape))
         If quantidade > 0 Then
-            outputCode = ResolverOutputCode(nomeShape, CStr(item("OutputCode")), medidasAcessorios)
-            If EhAcessorioComVarianteBorda(nomeShape) Then
+            outputCode = CStr(item("OutputCode"))
+            If EhAcessorioComMedidaSeparada(nomeShape) Then
+                texto = texto & MontarLinhasAcessorioComMedida(nomeShape, quantidade, outputCode, medidasAcessorios)
+            ElseIf EhAcessorioComVarianteBorda(nomeShape) Then
+                outputCode = ResolverOutputCode(nomeShape, outputCode, medidasAcessorios)
                 texto = texto & MontarLinhasAcessorioComVariante(nomeShape, quantidade, outputCode, medidasAcessorios)
             ElseIf EhCavaleteMetalon3(nomeShape) Then
                 texto = texto & "- " & outputCode & vbCrLf
             Else
+                outputCode = ResolverOutputCode(nomeShape, outputCode, medidasAcessorios)
                 texto = texto & "- " & quantidade & " " & outputCode & vbCrLf
             End If
         End If
@@ -89,7 +93,7 @@ End Function
 Private Function ResolverOutputCode(ByVal nomeShape As String, _
                                     ByVal outputCode As String, _
                                     ByVal medidasAcessorios As Object) As String
-    If UCase$(nomeShape) = "TESTEIRA-MACRO" Then
+    If UCase$(nomeShape) = "TESTEIRA-MACRO" Or UCase$(nomeShape) = "DAVN-MACRO" Then
         If Not medidasAcessorios Is Nothing Then
             If medidasAcessorios.Exists(nomeShape) Then
                 ResolverOutputCode = Replace(outputCode, "ALTXLARGURA", CStr(medidasAcessorios(nomeShape)))
@@ -168,5 +172,52 @@ Private Function NomeBasePorShape(ByVal nomeShape As String) As String
         Case SHAPE_KSVP_A4_MG
             NomeBasePorShape = "KSVP-A4-MG"
     End Select
+End Function
+
+Private Function EhAcessorioComMedidaSeparada(ByVal nomeShape As String) As Boolean
+    Select Case UCase$(nomeShape)
+        Case "TESTEIRA-MACRO", "DAVN-MACRO"
+            EhAcessorioComMedidaSeparada = True
+    End Select
+End Function
+
+Private Function MontarLinhasAcessorioComMedida(ByVal nomeShape As String, _
+                                                 ByVal quantidadeTotal As Long, _
+                                                 ByVal outputCodePadrao As String, _
+                                                 ByVal medidasAcessorios As Object) As String
+    Dim texto As String
+    Dim chave As Variant
+    Dim prefixo As String
+    Dim medida As String
+    Dim qtdPorMedida As Long
+    Dim qtdContabilizada As Long
+
+    texto = ""
+    prefixo = UCase$(nomeShape) & "_MEDIDA_"
+
+    If Not medidasAcessorios Is Nothing Then
+        For Each chave In medidasAcessorios.Keys
+            If Left$(CStr(chave), Len(prefixo)) = prefixo Then
+                qtdPorMedida = CLng(medidasAcessorios(chave))
+                medida = Mid$(CStr(chave), Len(prefixo) + 1)
+
+                texto = texto & "- " & qtdPorMedida & " " & _
+                        Replace(outputCodePadrao, "ALTXLARGURA", medida) & vbCrLf
+                qtdContabilizada = qtdContabilizada + qtdPorMedida
+            End If
+        Next chave
+
+        If qtdContabilizada > 0 Then
+            If qtdContabilizada < quantidadeTotal Then
+                texto = texto & "- " & (quantidadeTotal - qtdContabilizada) & " " & _
+                        ResolverOutputCode(nomeShape, outputCodePadrao, medidasAcessorios) & vbCrLf
+            End If
+            MontarLinhasAcessorioComMedida = texto
+            Exit Function
+        End If
+    End If
+
+    MontarLinhasAcessorioComMedida = "- " & quantidadeTotal & " " & _
+                                     ResolverOutputCode(nomeShape, outputCodePadrao, medidasAcessorios) & vbCrLf
 End Function
 
