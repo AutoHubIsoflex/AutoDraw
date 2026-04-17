@@ -62,6 +62,8 @@ Private Function ObterDefinicoesBrutas() As Variant
     defs.Add "KSIR-A6-MG-MACRO|KSIR-A6-MG|MG"
     defs.Add "KSIP-A6-AD-MACRO|KSIP-A6-AD|AD"
     defs.Add "KSIP-A6-MG-MACRO|KSIP-A6-MG|MG"
+    defs.Add "REGUA-BENSON-FIX-MACRO|RÉGUA BENSON COM 4 GARRAS" & vbCrLf & "FIX/ PARAFUSADA|NEUTRO"
+    defs.Add "REGUA-BENSON-MG-MACRO|RÉGUA BENSON COM 4 GARRAS" & vbCrLf & "FIX/ MAGNÉTICA|MG"
     
     Set ObterDefinicoesBrutas = defs
 End Function
@@ -102,4 +104,3 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
-
