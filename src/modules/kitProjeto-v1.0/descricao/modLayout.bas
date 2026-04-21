@@ -7,7 +7,6 @@ Private Const SHAPE_KSVR_A4_AD As String = "KSVR-A4-AD-MACRO"
 Private Const SHAPE_KSVR_A4_MG As String = "KSVR-A4-MG-MACRO"
 Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
 Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
-Private Const SHAPE_BORDA_MACRO As String = "BORDA-MACRO"
 Private Const SHAPE_BASE_KANBAN As String = "BASE-KANBAN-MACRO"
 Private Const SHAPE_TIRA_T_VD As String = "TIRA-T-VD-MACRO"
 Private Const SHAPE_TIRA_T_AM As String = "TIRA-T-AM-MACRO"
@@ -223,11 +222,7 @@ Private Sub RegistrarVarianteBordaSeAplicavel(ByVal nomeShape As String, _
 End Sub
 
 Private Function ObterVarianteBorda(ByVal shapeAcessorio As Shape) As String
-    Dim shapeBorda As Shape
-    Set shapeBorda = EncontrarShapePorNome(shapeAcessorio, SHAPE_BORDA_MACRO)
-    If shapeBorda Is Nothing Then Exit Function
-
-    Select Case shapeBorda.Fill.Type
+    Select Case shapeAcessorio.Fill.Type
         Case cdrUniformFill
             ObterVarianteBorda = "UNIFORME"
         Case cdrFountainFill
@@ -258,23 +253,6 @@ End Sub
 Private Function ChaveQtdVariante(ByVal nomeShape As String, _
                                   ByVal variante As String) As String
     ChaveQtdVariante = UCase$(nomeShape) & "_VARIANTE_" & UCase$(variante) & "_QTD"
-End Function
-
-Private Function EncontrarShapePorNome(ByVal shapeRaiz As Shape, _
-                                       ByVal nomeAlvo As String) As Shape
-    Dim filho As Shape
-
-    If UCase$(shapeRaiz.Name) = UCase$(nomeAlvo) Then
-        Set EncontrarShapePorNome = shapeRaiz
-        Exit Function
-    End If
-
-    If shapeRaiz.Type <> cdrGroupShape Then Exit Function
-
-    For Each filho In shapeRaiz.Shapes
-        Set EncontrarShapePorNome = EncontrarShapePorNome(filho, nomeAlvo)
-        If Not EncontrarShapePorNome Is Nothing Then Exit Function
-    Next filho
 End Function
 
 Private Function FormatarMedidaTexto(ByVal medida As Double) As String

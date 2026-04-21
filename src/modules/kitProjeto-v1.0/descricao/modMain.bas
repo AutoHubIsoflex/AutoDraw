@@ -3,7 +3,6 @@ Attribute VB_Name = "modMain"
 Option Explicit
 
 Sub descricaoAuto()
-
     Dim tipoQuadro As tipoQuadro
     tipoQuadro = modUi.SolicitarTipoQuadro()
     If tipoQuadro = -1 Then Exit Sub

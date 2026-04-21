@@ -104,3 +104,4 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
+
