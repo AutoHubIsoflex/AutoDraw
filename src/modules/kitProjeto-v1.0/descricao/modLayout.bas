@@ -103,6 +103,8 @@ Public Function ColetarAcessorios(ByVal indice As Object, _
         ProcessarShape sh, indice, contadores, ehMG, ehAD, medidasAcessorios
     Next sh
 
+    AplicarRegraReforcoAluminio contadores
+
     Set ColetarAcessorios = contadores
 End Function
 
@@ -254,6 +256,20 @@ Private Function ChaveQtdVariante(ByVal nomeShape As String, _
                                   ByVal variante As String) As String
     ChaveQtdVariante = UCase$(nomeShape) & "_VARIANTE_" & UCase$(variante) & "_QTD"
 End Function
+
+Private Sub AplicarRegraReforcoAluminio(ByRef contadores As Object)
+    Const SHAPE_BASE_ESC_A4 As String = "BASE-ESC-A4-MACRO"
+    Dim qtdBases As Long
+
+    If contadores Is Nothing Then Exit Sub
+    If Not contadores.Exists(SHAPE_BASE_ESC_A4) Then Exit Sub
+    If Not contadores.Exists(SHAPE_REFORCO_ALUMINIO_AUTO) Then Exit Sub
+
+    qtdBases = CLng(contadores(SHAPE_BASE_ESC_A4))
+    If qtdBases < 6 Then Exit Sub
+
+    contadores(SHAPE_REFORCO_ALUMINIO_AUTO) = 1
+End Sub
 
 Private Function FormatarMedidaTexto(ByVal medida As Double) As String
     Dim valorArredondado As Double

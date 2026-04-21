@@ -11,6 +11,7 @@ End Enum
 Public Const COMPAT_AD     As String = "AD"
 Public Const COMPAT_MG     As String = "MG"
 Public Const COMPAT_NEUTRO As String = "NEUTRO"
+Public Const SHAPE_REFORCO_ALUMINIO_AUTO As String = "REFORCO-ALUMINIO-AUTO"
 
 Private Function ObterDefinicoesBrutas() As Variant
     Dim defs As Collection
@@ -64,6 +65,7 @@ Private Function ObterDefinicoesBrutas() As Variant
     defs.Add "KSIP-A6-MG-MACRO|KSIP-A6-MG|MG"
     defs.Add "REGUA-BENSON-FIX-MACRO|RÉGUA BENSON COM 4 GARRAS" & vbCrLf & "FIX/ PARAFUSADA|NEUTRO"
     defs.Add "REGUA-BENSON-MG-MACRO|RÉGUA BENSON COM 4 GARRAS" & vbCrLf & "FIX/ MAGNÉTICA|MG"
+    defs.Add SHAPE_REFORCO_ALUMINIO_AUTO & "|PAR DE REFORÇO EM ALUMÍNIO" & vbCrLf & "PARA QUADROS|NEUTRO"
     
     Set ObterDefinicoesBrutas = defs
 End Function
@@ -104,4 +106,3 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
-
