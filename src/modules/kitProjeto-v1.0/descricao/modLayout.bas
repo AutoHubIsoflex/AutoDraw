@@ -1,5 +1,5 @@
 Attribute VB_Name = "modLayout"
-' modLayout
+' modLayout'
 Option Explicit
 
 Private Const TOLERANCIA_COR_CMYK As Double = 0.5
@@ -181,10 +181,7 @@ Private Sub RegistrarGrupoKanbanSeAplicavel(ByVal shapeGrupo As Shape, _
     qtdBase = ContarShapesPorNome(shapeGrupo, SHAPE_BASE_KANBAN)
     If qtdBase = 0 Then Exit Sub
 
-    qtdVD = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_VD)
-    qtdAM = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_AM)
-    qtdVM = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_VM)
-    qtdCZ = ContarShapesPorNome(shapeGrupo, SHAPE_TIRA_T_CZ)
+    ContarTirasKanbanHibrido shapeGrupo, qtdVD, qtdAM, qtdVM, qtdCZ
     qtdPakInt = ContarShapesPorNome(shapeGrupo, SHAPE_PAK_INT)
     qtdTotalTiras = qtdVD + qtdAM + qtdVM + qtdCZ
     If qtdTotalTiras = 0 Then Exit Sub
@@ -196,6 +193,150 @@ Private Sub RegistrarGrupoKanbanSeAplicavel(ByVal shapeGrupo As Shape, _
     Else
         medidasAcessorios.Add chave, 1
     End If
+End Sub
+
+Private Sub ContarTirasKanbanHibrido(ByVal shapeGrupo As Shape, _
+                                     ByRef qtdVD As Long, _
+                                     ByRef qtdAM As Long, _
+                                     ByRef qtdVM As Long, _
+                                     ByRef qtdCZ As Long)
+    ProcessarTirasKanbanRecursivo shapeGrupo, qtdVD, qtdAM, qtdVM, qtdCZ
+End Sub
+
+Private Sub ProcessarTirasKanbanRecursivo(ByVal sh As Shape, _
+                                          ByRef qtdVD As Long, _
+                                          ByRef qtdAM As Long, _
+                                          ByRef qtdVM As Long, _
+                                          ByRef qtdCZ As Long)
+    On Error GoTo Fim
+
+    If sh.Type = cdrGroupShape Then
+        Dim filho As Shape
+        For Each filho In sh.Shapes
+            ProcessarTirasKanbanRecursivo filho, qtdVD, qtdAM, qtdVM, qtdCZ
+        Next filho
+        Exit Sub
+    End If
+
+    Dim nomeShape As String
+    nomeShape = UCase$(sh.Name)
+    If Not EhShapeTiraKanban(nomeShape) Then Exit Sub
+
+    Dim siglaCor As String
+    siglaCor = ObterSiglaCorTiraPorFill(sh)
+    If siglaCor = "" Then Exit Sub
+
+    IncrementarContadorCorKanban siglaCor, qtdVD, qtdAM, qtdVM, qtdCZ
+
+Fim:
+    Err.Clear
+End Sub
+
+Private Function EhShapeTiraKanban(ByVal nomeShape As String) As Boolean
+    EhShapeTiraKanban = (Left$(UCase$(nomeShape), 7) = "TIRA-T-")
+End Function
+
+Private Function ObterSiglaCorTiraPorFill(ByVal sh As Shape) As String
+    On Error GoTo Falha
+
+    If sh.Fill Is Nothing Then Exit Function
+    If sh.Fill.Type <> cdrUniformFill Then Exit Function
+
+    Dim c As Double
+    Dim m As Double
+    Dim y As Double
+    Dim k As Double
+
+    c = sh.Fill.UniformColor.CMYKCyan
+    m = sh.Fill.UniformColor.CMYKMagenta
+    y = sh.Fill.UniformColor.CMYKYellow
+    k = sh.Fill.UniformColor.CMYKBlack
+
+    ' Tentativa 1: correspondencia exata com pequena tolerancia.
+    If CorCMYKProxima(sh.Fill.UniformColor, 100, 0, 100, 0) Then
+        ObterSiglaCorTiraPorFill = "VD"
+        Exit Function
+    End If
+
+    If CorCMYKProxima(sh.Fill.UniformColor, 0, 0, 100, 0) Then
+        ObterSiglaCorTiraPorFill = "AM"
+        Exit Function
+    End If
+
+    If CorCMYKProxima(sh.Fill.UniformColor, 0, 100, 100, 0) Then
+        ObterSiglaCorTiraPorFill = "VM"
+        Exit Function
+    End If
+
+    If CorCMYKProxima(sh.Fill.UniformColor, 0, 0, 0, 30) Then
+        ObterSiglaCorTiraPorFill = "CZ"
+        Exit Function
+    End If
+
+    ' Tentativa 2: faixas tolerantes para lidar com conversoes de perfil de cor.
+    ObterSiglaCorTiraPorFill = ClassificarCorTiraPorFaixa(c, m, y, k)
+
+    Exit Function
+Falha:
+    ObterSiglaCorTiraPorFill = ""
+    Err.Clear
+End Function
+
+Private Function ClassificarCorTiraPorFaixa(ByVal c As Double, _
+                                            ByVal m As Double, _
+                                            ByVal y As Double, _
+                                            ByVal k As Double) As String
+    ' Verde: C e Y altos, M baixo.
+    If c >= 70 And y >= 70 And m <= 35 And k <= 35 Then
+        ClassificarCorTiraPorFaixa = "VD"
+        Exit Function
+    End If
+
+    ' Amarelo: Y alto com C/M baixos.
+    If y >= 70 And c <= 25 And m <= 25 And k <= 25 Then
+        ClassificarCorTiraPorFaixa = "AM"
+        Exit Function
+    End If
+
+    ' Vermelho: M e Y altos com C baixo.
+    If m >= 70 And y >= 70 And c <= 25 And k <= 25 Then
+        ClassificarCorTiraPorFaixa = "VM"
+        Exit Function
+    End If
+
+    ' Cinza: preto dominante com C/M/Y baixos.
+    If k >= 20 And c <= 20 And m <= 20 And y <= 20 Then
+        ClassificarCorTiraPorFaixa = "CZ"
+    End If
+End Function
+
+Private Function CorCMYKProxima(ByVal cor As Color, _
+                                ByVal c As Double, _
+                                ByVal m As Double, _
+                                ByVal y As Double, _
+                                ByVal k As Double) As Boolean
+    CorCMYKProxima = _
+        Abs(cor.CMYKCyan - c) < TOLERANCIA_COR_CMYK And _
+        Abs(cor.CMYKMagenta - m) < TOLERANCIA_COR_CMYK And _
+        Abs(cor.CMYKYellow - y) < TOLERANCIA_COR_CMYK And _
+        Abs(cor.CMYKBlack - k) < TOLERANCIA_COR_CMYK
+End Function
+
+Private Sub IncrementarContadorCorKanban(ByVal siglaCor As String, _
+                                         ByRef qtdVD As Long, _
+                                         ByRef qtdAM As Long, _
+                                         ByRef qtdVM As Long, _
+                                         ByRef qtdCZ As Long)
+    Select Case UCase$(siglaCor)
+        Case "VD"
+            qtdVD = qtdVD + 1
+        Case "AM"
+            qtdAM = qtdAM + 1
+        Case "VM"
+            qtdVM = qtdVM + 1
+        Case "CZ"
+            qtdCZ = qtdCZ + 1
+    End Select
 End Sub
 
 Private Sub IncrementarContadorMedidaAcessorio(ByRef medidasAcessorios As Object, _

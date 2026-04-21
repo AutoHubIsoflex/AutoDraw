@@ -307,4 +307,3 @@ Private Sub AdicionarCorKanban(ByRef detalhe As String, _
     If detalhe <> "" Then detalhe = detalhe & ","
     detalhe = detalhe & quantidade & cor
 End Sub
-
