@@ -1,5 +1,5 @@
 Attribute VB_Name = "modLayout"
-' modLayout'
+' modLayout
 Option Explicit
 
 Private Const TOLERANCIA_COR_CMYK As Double = 0.5
@@ -88,6 +88,7 @@ Public Function TentarObterTextoSelecionado(ByRef textoSelecionado As Shape) As 
 End Function
 
 Public Function ColetarAcessorios(ByVal indice As Object, _
+                                   ByVal tipo As tipoQuadro, _
                                    ByRef ehMG As Boolean, _
                                    ByRef ehAD As Boolean, _
                                    ByRef medidasAcessorios As Object) As Object
@@ -100,7 +101,7 @@ Public Function ColetarAcessorios(ByVal indice As Object, _
 
     Dim sh As Shape
     For Each sh In ActivePage.Shapes
-        ProcessarShape sh, indice, contadores, ehMG, ehAD, medidasAcessorios
+        ProcessarShape sh, indice, contadores, tipo, ehMG, ehAD, medidasAcessorios
     Next sh
 
     AplicarRegraReforcoAluminio contadores
@@ -123,6 +124,7 @@ End Function
 Private Sub ProcessarShape(ByVal sh As Shape, _
                             ByVal indice As Object, _
                             ByRef contadores As Object, _
+                            ByVal tipo As tipoQuadro, _
                             ByRef ehMG As Boolean, _
                             ByRef ehAD As Boolean, _
                             ByRef medidasAcessorios As Object)
@@ -147,16 +149,24 @@ Private Sub ProcessarShape(ByVal sh As Shape, _
         IncrementarContadorMedidaAcessorio medidasAcessorios, nomeShape, medidaTexto
 
         Set itemAcessorio = indice(nomeShape)
-        Select Case CStr(itemAcessorio("Compat"))
-            Case COMPAT_MG: ehMG = True
-            Case COMPAT_AD: ehAD = True
-        End Select
+        If nomeShape = "DAVN-MACRO" Then
+            If tipo = tqQPMM_P Then
+                ehMG = True
+            Else
+                ehAD = True
+            End If
+        Else
+            Select Case CStr(itemAcessorio("Compat"))
+                Case COMPAT_MG: ehMG = True
+                Case COMPAT_AD: ehAD = True
+            End Select
+        End If
     End If
 
     If sh.Type = cdrGroupShape Then
         Dim filho As Shape
         For Each filho In sh.Shapes
-            ProcessarShape filho, indice, contadores, ehMG, ehAD, medidasAcessorios
+            ProcessarShape filho, indice, contadores, tipo, ehMG, ehAD, medidasAcessorios
         Next filho
     End If
 

@@ -34,7 +34,7 @@ Private Function ObterDefinicoesBrutas() As Variant
     defs.Add "PTI-MACRO|PTI|NEUTRO"
     defs.Add "PTC-MACRO|PTC|NEUTRO"
     defs.Add "PTL-MACRO|PTL|NEUTRO"
-    defs.Add "DAVN-MACRO|DAVN-(FIX)-MED ALTXLARGURAMM|NEUTRO"
+    defs.Add "DAVN-MACRO|DAVN-TIPO-MED ALTXLARGURAMM|NEUTRO"
     defs.Add "TESTEIRA-MACRO|TEST PS MED ALTXLARGURAMM|NEUTRO"
     defs.Add "BASE-ESC-A4-MACRO|BASE-ESC-A4|NEUTRO"
     defs.Add "BASE-BIG-ISOLEAN-MACRO|BASE BIG ISOLEAN A4|NEUTRO"
@@ -106,3 +106,4 @@ Private Function CriarDefinicaoAcessorio(ByVal shapeName As String, _
 
     Set CriarDefinicaoAcessorio = item
 End Function
+

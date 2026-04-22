@@ -6,6 +6,8 @@ Private Const SHAPE_KSVR_A4_AD As String = "KSVR-A4-AD-MACRO"
 Private Const SHAPE_KSVR_A4_MG As String = "KSVR-A4-MG-MACRO"
 Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
 Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
+Private Const SHAPE_TESTEIRA As String = "TESTEIRA-MACRO"
+Private Const SHAPE_DAVN As String = "DAVN-MACRO"
 
 Public Function MontarTextoCompleto(ByVal tipo As tipoQuadro, _
                                      ByVal altura As Double, _
@@ -17,7 +19,7 @@ Public Function MontarTextoCompleto(ByVal tipo As tipoQuadro, _
     texto = MontarTextoPrincipal(tipo, altura, largura)
 
     Dim secaoAcessorios As String
-    secaoAcessorios = MontarTextoAcessorios(catalogo, contadores, medidasAcessorios)
+    secaoAcessorios = MontarTextoAcessorios(tipo, catalogo, contadores, medidasAcessorios)
 
     MontarTextoCompleto = AnexarSecaoAcessorios(texto, secaoAcessorios)
 End Function
@@ -42,7 +44,8 @@ Private Function MontarTextoPrincipal(ByVal tipo As tipoQuadro, _
     End Select
 End Function
 
-Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
+Private Function MontarTextoAcessorios(ByVal tipo As tipoQuadro, _
+                                        ByVal catalogo As Collection, _
                                         ByVal contadores As Object, _
                                         ByVal medidasAcessorios As Object) As String
     Dim item As Variant
@@ -59,15 +62,15 @@ Private Function MontarTextoAcessorios(ByVal catalogo As Collection, _
         If quantidade > 0 Then
             outputCode = CStr(item("OutputCode"))
             If EhAcessorioComMedidaSeparada(nomeShape) Then
-                texto = texto & MontarLinhasAcessorioComMedida(nomeShape, quantidade, outputCode, medidasAcessorios)
+                texto = texto & MontarLinhasAcessorioComMedida(tipo, nomeShape, quantidade, outputCode, medidasAcessorios)
             ElseIf EhAcessorioComVarianteBorda(nomeShape) Then
-                outputCode = ResolverOutputCode(nomeShape, outputCode, medidasAcessorios)
+                outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
                 texto = texto & MontarLinhasAcessorioComVariante(nomeShape, quantidade, outputCode, medidasAcessorios)
             ElseIf EhCavaleteMetalon3(nomeShape) Then
-                texto = texto & "- " & outputCode & vbCrLf
+                texto = texto & MontarLinhaSemQuantidade(outputCode)
             Else
-                outputCode = ResolverOutputCode(nomeShape, outputCode, medidasAcessorios)
-                texto = texto & "- " & quantidade & " " & outputCode & vbCrLf
+                outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
+                texto = texto & MontarLinhaComQuantidade(quantidade, outputCode)
             End If
         End If
     Next item
@@ -92,10 +95,31 @@ Private Function EhCavaleteMetalon3(ByVal nomeShape As String) As Boolean
     EhCavaleteMetalon3 = (Left$(UCase$(nomeShape), 18) = "CAVALETE-METALON3-")
 End Function
 
-Private Function ResolverOutputCode(ByVal nomeShape As String, _
+Private Function ResolverOutputCode(ByVal tipo As tipoQuadro, _
+                                    ByVal nomeShape As String, _
                                     ByVal outputCode As String, _
-                                    ByVal medidasAcessorios As Object) As String
-    If UCase$(nomeShape) = "TESTEIRA-MACRO" Or UCase$(nomeShape) = "DAVN-MACRO" Then
+                                    ByVal medidasAcessorios As Object, _
+                                    Optional ByVal medidaOverride As String = "") As String
+    Dim nomeShapeNormalizado As String
+    Dim sufixoCompat As String
+
+    nomeShapeNormalizado = UCase$(nomeShape)
+
+    If nomeShapeNormalizado = SHAPE_DAVN Then
+        If tipo = tqQPMM_P Then
+            sufixoCompat = COMPAT_MG
+        Else
+            sufixoCompat = COMPAT_AD
+        End If
+        outputCode = Replace(outputCode, "TIPO", sufixoCompat)
+    End If
+
+    If nomeShapeNormalizado = SHAPE_TESTEIRA Or nomeShapeNormalizado = SHAPE_DAVN Then
+        If medidaOverride <> "" Then
+            ResolverOutputCode = Replace(outputCode, "ALTXLARGURA", medidaOverride)
+            Exit Function
+        End If
+
         If Not medidasAcessorios Is Nothing Then
             If medidasAcessorios.Exists(nomeShape) Then
                 ResolverOutputCode = Replace(outputCode, "ALTXLARGURA", CStr(medidasAcessorios(nomeShape)))
@@ -147,10 +171,6 @@ Private Function MontarLinhasAcessorioComVariante(ByVal nomeShape As String, _
     MontarLinhasAcessorioComVariante = texto
 End Function
 
-Private Function ChaveVariantePorShape(ByVal nomeShape As String) As String
-    ChaveVariantePorShape = UCase$(nomeShape) & "_VARIANTE"
-End Function
-
 Private Function ObterQuantidadeVariante(ByVal medidasAcessorios As Object, _
                                          ByVal nomeShape As String, _
                                          ByVal variante As String) As Long
@@ -178,12 +198,13 @@ End Function
 
 Private Function EhAcessorioComMedidaSeparada(ByVal nomeShape As String) As Boolean
     Select Case UCase$(nomeShape)
-        Case "TESTEIRA-MACRO", "DAVN-MACRO"
+        Case SHAPE_TESTEIRA, SHAPE_DAVN
             EhAcessorioComMedidaSeparada = True
     End Select
 End Function
 
-Private Function MontarLinhasAcessorioComMedida(ByVal nomeShape As String, _
+Private Function MontarLinhasAcessorioComMedida(ByVal tipo As tipoQuadro, _
+                                                 ByVal nomeShape As String, _
                                                  ByVal quantidadeTotal As Long, _
                                                  ByVal outputCodePadrao As String, _
                                                  ByVal medidasAcessorios As Object) As String
@@ -203,24 +224,24 @@ Private Function MontarLinhasAcessorioComMedida(ByVal nomeShape As String, _
                 qtdPorMedida = CLng(medidasAcessorios(chave))
                 medida = Mid$(CStr(chave), Len(prefixo) + 1)
 
-                texto = texto & "- " & qtdPorMedida & " " & _
-                        Replace(outputCodePadrao, "ALTXLARGURA", medida) & vbCrLf
+                texto = texto & MontarLinhaComQuantidade(qtdPorMedida, _
+                    ResolverOutputCode(tipo, nomeShape, outputCodePadrao, medidasAcessorios, medida))
                 qtdContabilizada = qtdContabilizada + qtdPorMedida
             End If
         Next chave
 
         If qtdContabilizada > 0 Then
             If qtdContabilizada < quantidadeTotal Then
-                texto = texto & "- " & (quantidadeTotal - qtdContabilizada) & " " & _
-                        ResolverOutputCode(nomeShape, outputCodePadrao, medidasAcessorios) & vbCrLf
+                texto = texto & MontarLinhaComQuantidade((quantidadeTotal - qtdContabilizada), _
+                        ResolverOutputCode(tipo, nomeShape, outputCodePadrao, medidasAcessorios))
             End If
             MontarLinhasAcessorioComMedida = texto
             Exit Function
         End If
     End If
 
-    MontarLinhasAcessorioComMedida = "- " & quantidadeTotal & " " & _
-                                     ResolverOutputCode(nomeShape, outputCodePadrao, medidasAcessorios) & vbCrLf
+    MontarLinhasAcessorioComMedida = MontarLinhaComQuantidade(quantidadeTotal, _
+                                     ResolverOutputCode(tipo, nomeShape, outputCodePadrao, medidasAcessorios))
 End Function
 
 Private Function MontarLinhasKanbanPorGrupo(ByVal medidasAcessorios As Object) As String
@@ -307,3 +328,13 @@ Private Sub AdicionarCorKanban(ByRef detalhe As String, _
     If detalhe <> "" Then detalhe = detalhe & ","
     detalhe = detalhe & quantidade & cor
 End Sub
+
+Private Function MontarLinhaComQuantidade(ByVal quantidade As Long, _
+                                          ByVal descricao As String) As String
+    MontarLinhaComQuantidade = "- " & quantidade & " " & descricao & vbCrLf
+End Function
+
+Private Function MontarLinhaSemQuantidade(ByVal descricao As String) As String
+    MontarLinhaSemQuantidade = "- " & descricao & vbCrLf
+End Function
+

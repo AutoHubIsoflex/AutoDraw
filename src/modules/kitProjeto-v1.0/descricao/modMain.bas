@@ -3,6 +3,7 @@ Attribute VB_Name = "modMain"
 Option Explicit
 
 Sub descricaoAuto()
+
     Dim tipoQuadro As tipoQuadro
     tipoQuadro = modUi.SolicitarTipoQuadro()
     If tipoQuadro = -1 Then Exit Sub
@@ -30,7 +31,7 @@ Sub descricaoAuto()
     Dim ehAD As Boolean
     Dim contadores As Object
     Dim medidasAcessorios As Object
-    Set contadores = modLayout.ColetarAcessorios(indice, ehMG, ehAD, medidasAcessorios)
+    Set contadores = modLayout.ColetarAcessorios(indice, tipoQuadro, ehMG, ehAD, medidasAcessorios)
 
     If Not modUi.ConfirmarCompatibilidade(tipoQuadro, ehMG, ehAD) Then Exit Sub
 
