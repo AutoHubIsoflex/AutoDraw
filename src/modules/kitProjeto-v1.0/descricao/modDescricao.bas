@@ -8,6 +8,13 @@ Private Const SHAPE_KSVP_A4_AD As String = "KSVP-A4-AD-MACRO"
 Private Const SHAPE_KSVP_A4_MG As String = "KSVP-A4-MG-MACRO"
 Private Const SHAPE_TESTEIRA As String = "TESTEIRA-MACRO"
 Private Const SHAPE_DAVN As String = "DAVN-MACRO"
+Private Const SHAPE_ESC_A4_CZ As String = "ESC-A4-CZ-MACRO"
+Private Const SHAPE_ESC_A4_AM As String = "ESC-A4-AM-MACRO"
+Private Const SHAPE_ESC_A4_AZ As String = "ESC-A4-AZ-MACRO"
+Private Const SHAPE_ESC_A4_VD As String = "ESC-A4-VD-MACRO"
+Private Const SHAPE_ESC_A4_VM As String = "ESC-A4-VM-MACRO"
+Private Const SHAPE_ESC_A4_PT As String = "ESC-A4-PT-MACRO"
+Private Const SHAPE_BASE_ESC_A4 As String = "BASE-ESC-A4-MACRO"
 
 Public Function MontarTextoCompleto(ByVal tipo As tipoQuadro, _
                                      ByVal altura As Double, _
@@ -53,24 +60,35 @@ Private Function MontarTextoAcessorios(ByVal tipo As tipoQuadro, _
     Dim quantidade As Long
     Dim texto As String
     Dim outputCode As String
+    Dim linhaEscAgrupada As String
+    Dim escLinhaInserida As Boolean
 
     texto = ""
+    linhaEscAgrupada = MontarLinhaEscA4Agrupada(contadores)
 
     For Each item In catalogo
         nomeShape = CStr(item("ShapeName"))
-        quantidade = CLng(contadores(nomeShape))
-        If quantidade > 0 Then
-            outputCode = CStr(item("OutputCode"))
-            If EhAcessorioComMedidaSeparada(nomeShape) Then
-                texto = texto & MontarLinhasAcessorioComMedida(tipo, nomeShape, quantidade, outputCode, medidasAcessorios)
-            ElseIf EhAcessorioComVarianteBorda(nomeShape) Then
-                outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
-                texto = texto & MontarLinhasAcessorioComVariante(nomeShape, quantidade, outputCode, medidasAcessorios)
-            ElseIf EhCavaleteMetalon3(nomeShape) Then
-                texto = texto & MontarLinhaSemQuantidade(outputCode)
-            Else
-                outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
-                texto = texto & MontarLinhaComQuantidade(quantidade, outputCode)
+        If linhaEscAgrupada <> "" And EhShapeEscA4(nomeShape) Then
+            If Not escLinhaInserida Then
+                texto = texto & linhaEscAgrupada
+                escLinhaInserida = True
+            End If
+        Else
+            quantidade = CLng(contadores(nomeShape))
+            If quantidade > 0 Then
+                outputCode = CStr(item("OutputCode"))
+                If EhAcessorioComMedidaSeparada(nomeShape) Then
+                    texto = texto & MontarLinhasAcessorioComMedida(tipo, nomeShape, quantidade, outputCode, medidasAcessorios)
+                ElseIf EhAcessorioComVarianteBorda(nomeShape) Then
+                    outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
+                    texto = texto & MontarLinhasAcessorioComVariante(nomeShape, quantidade, outputCode, medidasAcessorios)
+                ElseIf EhCavaleteMetalon3(nomeShape) Then
+                    texto = texto & MontarLinhaSemQuantidade(outputCode)
+                Else
+                    outputCode = ResolverOutputCode(tipo, nomeShape, outputCode, medidasAcessorios)
+                    outputCode = AjustarPluralBaseEscA4(nomeShape, quantidade, outputCode)
+                    texto = texto & MontarLinhaComQuantidade(quantidade, outputCode)
+                End If
             End If
         End If
     Next item
@@ -78,6 +96,105 @@ Private Function MontarTextoAcessorios(ByVal tipo As tipoQuadro, _
     texto = texto & MontarLinhasKanbanPorGrupo(medidasAcessorios)
 
     MontarTextoAcessorios = texto
+End Function
+
+Private Function MontarLinhaEscA4Agrupada(ByVal contadores As Object) As String
+    Dim total As Long
+    Dim qtdCores As Long
+    Dim detalhe As String
+    Dim qtd As Long
+
+    total = 0
+    qtdCores = 0
+    detalhe = ""
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_CZ)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "CZ", qtdCores
+    End If
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_AM)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "AM", qtdCores
+    End If
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_AZ)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "AZ", qtdCores
+    End If
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_VD)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "VD", qtdCores
+    End If
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_VM)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "VM", qtdCores
+    End If
+
+    qtd = ObterQtdShape(contadores, SHAPE_ESC_A4_PT)
+    If qtd > 0 Then
+        total = total + qtd
+        qtdCores = qtdCores + 1
+        AdicionarDetalheEsc detalhe, qtd, "PT", qtdCores
+    End If
+
+    If qtdCores >= 2 Then
+        MontarLinhaEscA4Agrupada = "- " & total & " ESC A4 (" & detalhe & ")" & vbCrLf
+    End If
+End Function
+
+Private Function ObterQtdShape(ByVal contadores As Object, _
+                               ByVal nomeShape As String) As Long
+    If contadores Is Nothing Then Exit Function
+    If Not contadores.Exists(nomeShape) Then Exit Function
+
+    ObterQtdShape = CLng(contadores(nomeShape))
+End Function
+
+Private Sub AdicionarDetalheEsc(ByRef detalhe As String, _
+                                ByVal quantidade As Long, _
+                                ByVal cor As String, _
+                                ByVal indiceCor As Long)
+    If detalhe <> "" Then detalhe = detalhe & ","
+    If indiceCor = 4 Then detalhe = detalhe & vbCrLf
+    detalhe = detalhe & quantidade & " " & cor
+End Sub
+
+Private Function EhShapeEscA4(ByVal nomeShape As String) As Boolean
+    Select Case UCase$(nomeShape)
+        Case SHAPE_ESC_A4_CZ, SHAPE_ESC_A4_AM, SHAPE_ESC_A4_AZ, _
+             SHAPE_ESC_A4_VD, SHAPE_ESC_A4_VM, SHAPE_ESC_A4_PT
+            EhShapeEscA4 = True
+    End Select
+End Function
+
+Private Function AjustarPluralBaseEscA4(ByVal nomeShape As String, _
+                                        ByVal quantidade As Long, _
+                                        ByVal outputCode As String) As String
+    Dim saida As String
+
+    AjustarPluralBaseEscA4 = outputCode
+
+    If UCase$(nomeShape) <> SHAPE_BASE_ESC_A4 Then Exit Function
+    If quantidade <= 1 Then Exit Function
+
+    saida = outputCode
+    saida = Replace(saida, "BASE-ESC-A4", "BASES-ESC-A4")
+    saida = Replace(saida, "BASE ESC A4", "BASES ESC A4")
+
+    AjustarPluralBaseEscA4 = saida
 End Function
 
 Private Function AnexarSecaoAcessorios(ByVal textoPrincipal As String, _
@@ -260,6 +377,7 @@ Private Function MontarLinhasKanbanPorGrupo(ByVal medidasAcessorios As Object) A
     Dim qtdPakIntNoGrupo As Long
     Dim qtdPakIntPorBase As Long
     Dim detalheCores As String
+    Dim rotuloBase As String
 
     texto = ""
     If medidasAcessorios Is Nothing Then Exit Function
@@ -290,8 +408,11 @@ Private Function MontarLinhasKanbanPorGrupo(ByVal medidasAcessorios As Object) A
                     End If
                 End If
 
+                rotuloBase = "BASE"
+                If qtdBasesTotal > 1 Then rotuloBase = "BASES"
+
                 detalheCores = MontarDetalheCoresKanban(qtdVD, qtdAM, qtdVM, qtdCZ)
-                texto = texto & "- " & qtdBasesTotal & " BASE KANBAN C/ " & qtdTirasTotal & _
+                texto = texto & "- " & qtdBasesTotal & " " & rotuloBase & " KANBAN C/ " & qtdTirasTotal & _
                         " TIRAS T CADA" & vbCrLf & _
                         "(" & detalheCores & ")"
                 If qtdPakIntPorBase > 0 Then
@@ -337,4 +458,6 @@ End Function
 Private Function MontarLinhaSemQuantidade(ByVal descricao As String) As String
     MontarLinhaSemQuantidade = "- " & descricao & vbCrLf
 End Function
+
+
 
